@@ -8,6 +8,11 @@ requirements:
 
 ### install requirements
 
+clone code
+````
+git clone https://github.com/nullhashpixel/bigeye.git
+````
+
 Recommendation: install requirements in a virtual requirement.
 
 ````
