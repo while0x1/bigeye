@@ -1,9 +1,8 @@
 {
     "NETWORK": "mainnet",
     "AUTO_SPAWN_MINERS": true, 
-    "MINER_EXECUTABLE": "miners/simple/miner_core.py",
-    "_MINER_EXECUTABLE": "./miners/run.sh",
-    "MINERS": "127.0.0.1:2023",
+    "MINER_EXECUTABLE": "miners/cpu/cpu-sha256",
+    "MINERS": "127.0.0.1:2023-2034",
     "SHELLEY_OFFSET": 1591566291,
     "TUNA_ASSETNAME": "TUNA",
     "POLICY": "c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e",
