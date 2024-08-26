@@ -1,0 +1,7 @@
+**/wallet.txt
+**/config.json
+**/*.swp
+**/*.swo
+__pycache__
+venv
+**/store.db

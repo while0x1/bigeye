@@ -1,0 +1,22 @@
+{
+    "NETWORK": "preview",
+    "MINERS": "127.0.0.1:2023-2034",
+    "SHELLEY_OFFSET": 1666656000,
+    "USE_MEMPOOL": false,
+    "DEBUG_TIMING": true,
+    "TUNA_ASSETNAME": "TUNA",
+    "POLICY": "6d8b234f4d0ecb7808f5132034eb0cb90207f2727e4f0bc83f57b57c", 
+    "CONTRACT_ADDRESS": "addr_test1wqdk2m0zx8ygc0gvjm2g2vavxz3k39r7cavksuv30sf2hwc6nlup4",
+    "SPEND_SCRIPT": "e2782b6c218ee43c2f9940efc5f62195be0e6e3026e368fddc53f6ff", 
+    "SPEND_SCRIPT_TX": "80874829afb2cb34e23d282d763b419e26e9fb976fe8a7044eebbdf6531214b7",
+    "SPEND_SCRIPT_IX": 1,
+    "MINT_SCRIPT": "c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e", 
+    "MINT_SCRIPT_TX": "80874829afb2cb34e23d282d763b419e26e9fb976fe8a7044eebbdf6531214b7", 
+    "MINT_SCRIPT_IX": 0,
+    "EPOCH_NUMBER": 50,
+    "OGMIOS": "{enter ogmios URL|ws://0.0.0.0:1337}",
+    "SYNC_SLOT": 54956382,
+    "SYNC_HASH": "ccb9a79f1308d4073b00ca6d28faeb18c24868fc1ad1841f320b93ebbb1c0fd7",
+    "SYNC_BLOCKNO": 2312156,
+    "PREFIX": "<x1b[105mPREVIEW-V2<x1b[0m"
+}
