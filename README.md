@@ -11,6 +11,7 @@ requirements:
 clone code
 ````
 git clone https://github.com/nullhashpixel/bigeye.git
+cd bigeye
 ````
 
 Recommendation: install requirements in a virtual requirement.
