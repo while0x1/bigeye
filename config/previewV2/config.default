@@ -2,8 +2,6 @@
     "NETWORK": "preview",
     "MINERS": "127.0.0.1:2023-2034",
     "SHELLEY_OFFSET": 1666656000,
-    "USE_MEMPOOL": false,
-    "DEBUG_TIMING": true,
     "TUNA_ASSETNAME": "TUNA",
     "POLICY": "6d8b234f4d0ecb7808f5132034eb0cb90207f2727e4f0bc83f57b57c", 
     "CONTRACT_ADDRESS": "addr_test1wqdk2m0zx8ygc0gvjm2g2vavxz3k39r7cavksuv30sf2hwc6nlup4",
