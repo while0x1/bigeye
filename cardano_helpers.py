@@ -1,5 +1,6 @@
 import pycardano
 import datetime
+import json
 
 def get_assets_with_policy(output, policy_id_hex):
     assets = output.amount.multi_asset.get(pycardano.hash.ScriptHash(bytes.fromhex(policy_id_hex)))
@@ -136,9 +137,12 @@ def get_tx_input_utxo(utxos):
             return utxo
     return None
 
+def unique_utxos(utxos):
+    return list(json.loads(y) for y in set(json.dumps(x) for x in utxos))
+
 def lovelace_value_from_utxos(utxos):
-    return sum(utxo.get('value', {}).get('ada', {}).get('lovelace', 0) for utxo in utxos)
+    return sum(utxo.get('value', {}).get('ada', {}).get('lovelace', 0) for utxo in unique_utxos(utxos))
 
 def token_value_from_utxos(utxos, policy, assetname_hex):
-    return sum(utxo.get('value', {}).get(policy, {}).get(assetname_hex, 0) for utxo in utxos)
+    return sum(utxo.get('value', {}).get(policy, {}).get(assetname_hex, 0) for utxo in unique_utxos(utxos))
 

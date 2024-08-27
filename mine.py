@@ -135,6 +135,7 @@ EPOCH_TARGET         = config.get('MILLISECONDS_PER_EPOCH', 600000) * EPOCH_NUMB
 MINER_TARGET_STATE_REFRESH_INTERVAL = config.get('MINER_TARGET_STATE_REFRESH_INTERVAL', 14)
 POSIX_TIME_DELTA     = config.get('POSIX_TIME_DELTA', 85000)
 MAX_WAIT_UNTIL_VALID_SECONDS = config.get('MAX_WAIT_UNTIL_VALID_SECONDS', 90)
+GLOBAL_TIMEOUT       = config.get('GLOBAL_TIMEOUT', 999*356*86400)
 
 WAIT_FOR_BLOCKS_S  = 0.1
 WAIT_FOR_MEMPOOL_S = 0.1
@@ -150,6 +151,7 @@ additional_lovelaces_to_contract = 0
 submitted_blocks = []
 last_time_between_blocks_estimation_time = time.monotonic()
 solution_submitted_timeout = -1
+last_success_time = time.monotonic()
 
 while True:
 
@@ -284,6 +286,10 @@ while True:
 
                 except:
                     pass
+
+            if time.monotonic() > last_success_time + GLOBAL_TIMEOUT:
+                logger(f"<x1b[93mno solution found for a long time, terminating<x1b[0m")
+                os._exit(10)
 
         # allow update of chain state if no solution found so far
         if not found_solution:
@@ -493,6 +499,7 @@ while True:
             state[use_state] = None
 
             solution_submitted_timeout = time.time() + 90
+            last_success_time = time.monotonic()
 
         elif 'error' in result and result['error']['code'] == 3117:
             chain.add_submitted_tx([out_block, None, TunaTxStatus.LATE])
