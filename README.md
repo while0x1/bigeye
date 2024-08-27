@@ -149,6 +149,17 @@ to mine.
 ...
 ````
 
+# docker
+
+minimum setup to run (not compile!) the GPU miner in a docker (on GPU renting platforms)
+
+image: `ubuntu:20.04` (official Ubuntu 20)
+````
+apt install -y clinfo nvidia-opencl-dev
+````
+
+warning: when running the miner on cloud services use only trusted images (wallet stealers are common on some platforms where users can share docker images) and only run the miner core (`cltuna`) in the cloud, not the tx building part! Never copy your seed phrase to untrusted cloud machines.
+
 
 # Known bugs/limitations
 
