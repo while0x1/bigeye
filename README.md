@@ -26,11 +26,43 @@ pip install -r requirements.txt
 
 ### build miner cores
 
+This step needs the standard gcc C++ build tools, on Ubuntu it can be installed with
+````
+apt update
+apt install build-essential
+````
+#### CPU
+
 go to `miners/cpu` and run
 ````
 make
 ````
-or similarly for other miners.
+#### GPU
+
+Use `clinfo` to check if OpenCL is already installed.
+If OpenCL is not installed, run (for Nvidia GPUs):
+````
+apt update
+apt install opencl-headers clinfo nvidia-opencl-dev
+````
+
+go to `miners/gpu` and run
+````
+make
+````
+
+Test if the GPU miner works with:
+````
+./cltuna benchmark
+````
+It will compute a few hashes and output a hash rate.
+
+If you have a Nvidia GPU and the miner is running, you can check if it is properly using the GPU with
+````
+nvidia-smi
+````
+GPU-Util should be >=99% and you should see `./cltuna` in the "Processes:" list.
+It improves the performance if other applications using the GPU are closed while mining, check the "Processes:" list for other programs using the GPU.
 
 
 ### wallet
@@ -84,4 +116,43 @@ The `simple` miner core is a pure Python implementation, which should be much sl
 ````
 ./mine.py mainnet
 ````
+
+To auto-restart the miner after a potential crash, create a script `run.sh`
+
+```` bash
+#!/bin/bash
+while true; do
+./mine.py mainnet;
+echo "waiting 10 sec";
+sleep 10;
+done
+````
+
+make it executable
+````
+chmod +x run.sh
+````
+
+and then use
+````
+./run.sh
+````
+to mine.
+
+## sample GPU configuration
+
+````
+...
+    "AUTO_SPAWN_MINERS": true,
+    "MINER_EXECUTABLE": "miners/gpu/run.sh",
+    "MINERS": "127.0.0.1:2023",
+...
+````
+
+
+
+
+
+
+
 
