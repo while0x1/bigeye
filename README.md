@@ -150,6 +150,15 @@ to mine.
 ````
 
 
+# Known bugs/limitations
+
+- It should work on Windows with some extra steps, as outlined here: https://github.com/nullhashpixel/cltunaminer
+- It doesn't properly handle all possible error conditions of Ogmios/cardano-node. For robustness, run the miner in the `run.sh` script as shown above and add a timeout for submitting a valid transaction with `"GLOBAL_TIMEOUT": 3600` in the `config.json`. This will exit the miner after 3600 s without a successfully submitted transaction, after which it will be restarted.
+
+
+# Disclaimer
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
