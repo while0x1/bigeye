@@ -1,8 +1,10 @@
 # bigeye miner
 
-requirements: 
+requirements:
 - Python >=3.8
-- **Ogmios, connected to a Cardano node**
+- **Ogmios 6.6.*, connected to a Cardano node**
+
+tested with local Ogmios/node, demeter should also work
 
 ## setup
 
@@ -75,6 +77,7 @@ If the miner cores run on other machines, an example configuration could look li
     "MINERS": "192.168.0.100:2023,192.168.0.100:2024,192.168.0.101:2023",
 ````
 
+The `simple` miner core is a pure Python implementation, which should be much slower on most systems.
 
 
 ## mine
