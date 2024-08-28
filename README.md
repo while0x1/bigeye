@@ -160,6 +160,16 @@ apt install -y clinfo nvidia-opencl-dev
 
 warning: when running the miner on cloud services use only trusted images (wallet stealers are common on some platforms where users can share docker images) and only run the miner core (`cltuna`) in the cloud, not the tx building part! Never copy your seed phrase to untrusted cloud machines.
 
+# hash rates
+
+| GPU     | OS     | hash rate        |
+|---------|--------|------------------|
+| 4090    | Linux  | 4.3 GH/s         |
+| 4080S   | Linux  | 2.2 GH/s         |
+| 3090    | Linux  | 1.2 GH/s         |
+| 2080S   | Linux  | 1.1 GH/s         |
+
+performance can vary depending on the exact GPU and PC
 
 # Known bugs/limitations
 
