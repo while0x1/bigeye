@@ -162,12 +162,14 @@ warning: when running the miner on cloud services use only trusted images (walle
 
 # hash rates
 
-| GPU     | OS     | hash rate        |
+| GPU     | OS     | hash rate GH/s   |
 |---------|--------|------------------|
-| 4090    | Linux  | 4.3 GH/s         |
-| 4080S   | Linux  | 2.2 GH/s         |
-| 3090    | Linux  | 1.2 GH/s         |
-| 2080S   | Linux  | 1.1 GH/s         |
+| 4090    | Linux  | 4.3              |
+| 4080S   | Linux  | 2.2              |
+| 4070    | Linux  | 1.8              |
+| 3080    | Linux  | 1.7              |
+| 2080S   | Linux  | 1.1              |
+| 4060    | Linux  | 0.95             |
 
 performance can vary depending on the exact GPU and PC
 
