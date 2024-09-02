@@ -26,11 +26,43 @@ pip install -r requirements.txt
 
 ### build miner cores
 
+This step needs the standard gcc C++ build tools, on Ubuntu it can be installed with
+````
+apt update
+apt install build-essential
+````
+#### CPU
+
 go to `miners/cpu` and run
 ````
 make
 ````
-or similarly for other miners.
+#### GPU
+
+Use `clinfo` to check if OpenCL is already installed.
+If OpenCL is not installed, run (for Nvidia GPUs):
+````
+apt update
+apt install opencl-headers clinfo nvidia-opencl-dev
+````
+
+go to `miners/gpu` and run
+````
+make
+````
+
+Test if the GPU miner works with:
+````
+./cltuna benchmark
+````
+It will compute a few hashes and output a hash rate.
+
+If you have a Nvidia GPU and the miner is running, you can check if it is properly using the GPU with
+````
+nvidia-smi
+````
+GPU-Util should be >=99% and you should see `./cltuna` in the "Processes:" list.
+It improves the performance if other applications using the GPU are closed while mining, check the "Processes:" list for other programs using the GPU.
 
 
 ### wallet
@@ -84,4 +116,75 @@ The `simple` miner core is a pure Python implementation, which should be much sl
 ````
 ./mine.py mainnet
 ````
+
+To auto-restart the miner after a potential crash, create a script `run.sh`
+
+```` bash
+#!/bin/bash
+while true; do
+./mine.py mainnet;
+echo "waiting 10 sec";
+sleep 10;
+done
+````
+
+make it executable
+````
+chmod +x run.sh
+````
+
+and then use
+````
+./run.sh
+````
+to mine.
+
+## sample GPU configuration
+
+````
+...
+    "AUTO_SPAWN_MINERS": true,
+    "MINER_EXECUTABLE": "miners/gpu/run.sh",
+    "MINERS": "127.0.0.1:2023",
+...
+````
+
+# docker
+
+minimum setup to run (not compile!) the GPU miner in a docker (on GPU renting platforms)
+
+image: `ubuntu:20.04` (official Ubuntu 20)
+````
+apt install -y clinfo nvidia-opencl-dev
+````
+
+warning: when running the miner on cloud services use only trusted images (wallet stealers are common on some platforms where users can share docker images) and only run the miner core (`cltuna`) in the cloud, not the tx building part! Never copy your seed phrase to untrusted cloud machines.
+
+# hash rates
+
+| GPU     | OS     | hash rate GH/s   |
+|---------|--------|------------------|
+| 4090    | Linux  | 4.3              |
+| 4080S   | Linux  | 2.2              |
+| 4070    | Linux  | 1.8              |
+| 3080    | Linux  | 1.7              |
+| 2080S   | Linux  | 1.1              |
+| 4060    | Linux  | 0.95             |
+
+performance can vary depending on the exact GPU and PC
+
+# Known bugs/limitations
+
+- It should work on Windows with some extra steps, as outlined here: https://github.com/nullhashpixel/cltunaminer
+- It doesn't properly handle all possible error conditions of Ogmios/cardano-node. For robustness, run the miner in the `run.sh` script as shown above and add a timeout for submitting a valid transaction with `"GLOBAL_TIMEOUT": 3600` in the `config.json`. This will exit the miner after 3600 s without a successfully submitted transaction, after which it will be restarted.
+
+
+# Disclaimer
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
+
 
