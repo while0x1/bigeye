@@ -1,10 +1,20 @@
 import json
+import ssl
 from websockets.sync.client import connect
 
 class Ogmios:
-    def __init__(self, ws_url):
+    def __init__(self, ws_url, config=None):
         self.ws_url = ws_url
-        self.ws     = connect(self.ws_url)
+        self.config = config
+
+        ctx = None
+        if self.config is not None and self.config.get('OGMIOS_DISABLE_CERTIFICATE_CHECK'):
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
+        self.ws     = connect(self.ws_url, ssl_context=ctx)
+
         self.queries = {
                 'NextBlock':         OgmiosQuery({"method": "nextBlock"}, ws=self.ws),
                 'FindIntersect':     OgmiosQuery({"method": "findIntersection"}, ws=self.ws),

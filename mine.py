@@ -27,7 +27,7 @@ from miners import MinerManager, format_hashrate
 from tuna_tx import *
 
 PROGRAM_NAME         = "bigeye"
-VERSION              = "v0.2.3"
+VERSION              = "v0.2.4"
 
 parser = argparse.ArgumentParser(
                     prog=f'{PROGRAM_NAME} {VERSION}',
@@ -60,7 +60,7 @@ OGMIOS_URL = config.get('OGMIOS', 'ws://0.0.0.0:1337')
 ogmios = None
 while ogmios is None:
     try:
-        ogmios = Ogmios(OGMIOS_URL)
+        ogmios = Ogmios(OGMIOS_URL, config=config)
     except Exception as e:
         logger(f"<x1b[91merror: failed to connect to ogmios @{OGMIOS_URL}: {e}")
         time.sleep(5)

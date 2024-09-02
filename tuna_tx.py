@@ -66,10 +66,9 @@ class TunaTx:
 
         if tx is None:
             self.tx = pycardano.Transaction.from_cbor(cbor)
-            self.cbor = cbor
         else:
             self.tx = tx
-            self.cbor = cbor
+        self.cbor = cbor
 
         witness_set = self.tx.transaction_witness_set
         self.redeemers   = witness_set.redeemer

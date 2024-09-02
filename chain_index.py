@@ -45,6 +45,11 @@ class ChainIndex:
                 submit_time UNSIGNED BIG INT
                 );""")
 
+        try:
+            self.cur.execute('ALTER TABLE chain ADD COLUMN cbor BLOB;')
+        except:
+            pass
+
     def get_tuna_block(self, tuna_block):
         self.cur.execute("SELECT block FROM chain WHERE tuna_block = ?", (tuna_block,))
         results = self.cur.fetchone()
@@ -59,10 +64,10 @@ class ChainIndex:
         existing_tuna_block = self.get_tuna_block(record['tuna_block'])
         if existing_tuna_block:
             print("TODO: handle rollbacks")
-            exit()
+            os._exit(17)
 
-        self.cur.execute("""INSERT INTO chain (block, slot, id, tx, tuna_block, tuna_hash, tuna_lz, tuna_dn, tuna_epoch, tuna_posix_time, tuna_merkle_root)
-                            VALUES (:block, :slot, :id, :tx, :tuna_block, :tuna_hash, :tuna_lz, :tuna_dn, :tuna_epoch, :tuna_posix_time, :tuna_merkle_root);""", record);
+        self.cur.execute("""INSERT INTO chain (block, slot, id, tx, tuna_block, tuna_hash, tuna_lz, tuna_dn, tuna_epoch, tuna_posix_time, tuna_merkle_root, cbor)
+                            VALUES (:block, :slot, :id, :tx, :tuna_block, :tuna_hash, :tuna_lz, :tuna_dn, :tuna_epoch, :tuna_posix_time, :tuna_merkle_root, :cbor);""", record);
         self.con.commit()
 
     def __repr__(self):

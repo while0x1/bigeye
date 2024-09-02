@@ -32,7 +32,7 @@ class ChainWatcher:
         self.config  = self.profile.config
         self.log     = self.profile.log
         self.wallet  = self.profile.wallet
-        self.ogmios  = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337')) 
+        self.ogmios  = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337'), config=self.config) 
         self.synced_with_time = False
         self.tx_debug = False
         self.submitted_transactions = []
@@ -140,6 +140,11 @@ class ChainWatcher:
                 self.log(f"<x1b[96m\U0001F41F {tuna_tx.out_block_number} {datetime.datetime.fromtimestamp(tuna_tx.out_posix_time * 0.001).isoformat()} ({time_behind} behind) <x1b[0m")
 
             try:
+                self.state['tuna_tx_cbor'] = tuna_tx.cbor
+            except:
+                self.state['tuna_tx_cbor'] = None
+
+            try:
                 self.index_state() 
             except Exception as e:
                 print("error during store to db:", e)
@@ -161,6 +166,13 @@ class ChainWatcher:
         tuna_state_columns = ['block', 'hash', 'lz', 'dn', 'epoch', 'posix_time', 'merkle_root']
         for c in tuna_state_columns:
             record['tuna_' + c] = self.state['tuna'].state.get(c)
+
+        record['cbor'] = bytes([])
+        try:
+            if self.state['tuna_tx_cbor'] is not None:
+                record['cbor'] = bytes.fromhex(self.state['tuna_tx_cbor'])
+        except Exception as e:
+            print(e)
 
         self.db.insert(record)
 

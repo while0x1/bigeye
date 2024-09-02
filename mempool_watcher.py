@@ -21,7 +21,7 @@ class MempoolWatcher:
         self.config = self.profile.config
         self.wallet = self.profile.wallet
         self.log = self.profile.log 
-        self.ogmios = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337')) 
+        self.ogmios = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337'), config=self.config) 
         self.running = False
         self.TUNA_STATE_PREFIX_HEX   = self.config.get('TUNA_STATE_PREFIX', 'TUNA').encode('utf-8').hex()
         self.TUNA_COUNTER_PREFIX_HEX = self.config.get('TUNA_COUNTER_PREFIX','COUNTER').encode('utf-8').hex()
