@@ -5,15 +5,23 @@ import sqlite3
 
 class ChainIndex:
     def __init__(self, storage_dir):
-        self.dir = storage_dir
-        self.db_filename = self.dir + '/store.db'
-        self.init_dir()
+        try:
+            print('Initializing ChainIndex Class')
+            self.dir = storage_dir
+            self.db_filename = self.dir + '/store.db'
+            self.init_dir()
+            
+            self.con = sqlite3.connect(self.db_filename)
+            self.con.row_factory = sqlite3.Row
+            self.cur = self.con.cursor()
 
-        self.con = sqlite3.connect(self.db_filename)
-        self.con.row_factory = sqlite3.Row
-        self.cur = self.con.cursor()
-
-        self.reset()
+            self.reset()
+        except sqlite3.Error as error:
+            print(error)
+            print("Failed to execute the above query", error)
+        except Exeption as e:
+            print('Init Error')
+            print(e)
 
     def init_dir(self):
         try:
@@ -51,8 +59,13 @@ class ChainIndex:
             pass
 
     def get_tuna_block(self, tuna_block):
-        self.cur.execute("SELECT block FROM chain WHERE tuna_block = ?", (tuna_block,))
-        results = self.cur.fetchone()
+        try:
+            self.cur.execute("SELECT block FROM chain WHERE tuna_block = ?", (tuna_block,))
+            results = self.cur.fetchone()
+        except sqlite3.Error as error:
+            print(error)
+            print("Failed to execute the above query", error)
+     
         return results[0] if (results is not None and len(results) > 0) else None
 
     def get_chain(self):
@@ -60,22 +73,35 @@ class ChainIndex:
         return self.cur.fetchall()
 
     def insert(self, record):
+        try:
+            print('Inserting Tuna Record -->')
+            print(record)
+            existing_tuna_block = self.get_tuna_block(record['tuna_block'])
+            if existing_tuna_block:
+                print("TODO: handle rollbacks")
+                os._exit(17)
 
-        existing_tuna_block = self.get_tuna_block(record['tuna_block'])
-        if existing_tuna_block:
-            print("TODO: handle rollbacks")
-            os._exit(17)
-
-        self.cur.execute("""INSERT INTO chain (block, slot, id, tx, tuna_block, tuna_hash, tuna_lz, tuna_dn, tuna_epoch, tuna_posix_time, tuna_merkle_root, cbor)
-                            VALUES (:block, :slot, :id, :tx, :tuna_block, :tuna_hash, :tuna_lz, :tuna_dn, :tuna_epoch, :tuna_posix_time, :tuna_merkle_root, :cbor);""", record);
-        self.con.commit()
+            self.cur.execute("""INSERT INTO chain (block, slot, id, tx, tuna_block, tuna_hash, tuna_lz, tuna_dn, tuna_epoch, tuna_posix_time, tuna_merkle_root)
+                                VALUES (:block, :slot, :id, :tx, :tuna_block, :tuna_hash, :tuna_lz, :tuna_dn, :tuna_epoch, :tuna_posix_time, :tuna_merkle_root);""", record);
+            self.con.commit()
+        except sqlite3.Error as error:
+            print(error)
+            print("Failed to execute the above query", error)
+     
 
     def __repr__(self):
         return f"<ChainIndex:{self.db_filename}>"
 
     def get_state(self):
-        self.cur.execute("SELECT * FROM chain ORDER BY tuna_block DESC LIMIT 1;")
-        result = self.cur.fetchone()
+        try:
+            print('GetStateCalled')
+            self.cur.execute("SELECT * FROM chain ORDER BY tuna_block DESC LIMIT 1;")
+            result = self.cur.fetchone()
+            print(result)
+        except sqlite3.Error as error:
+            print(error)
+            print("Failed to execute the above query", error)
+     
         return dict(result) if result else None 
 
     def rollback(self, height):
