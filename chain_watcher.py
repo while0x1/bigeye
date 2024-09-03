@@ -32,7 +32,7 @@ class ChainWatcher:
         self.config  = self.profile.config
         self.log     = self.profile.log
         self.wallet  = self.profile.wallet
-        self.ogmios  = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337'), config=self.config) 
+        self.ogmios  = Ogmios(self.config.get('OGMIOS', 'ws://0.0.0.0:1337'))
         self.synced_with_time = False
         self.tx_debug = False
         self.submitted_transactions = []
@@ -56,7 +56,7 @@ class ChainWatcher:
         self.TUNA_COUNTER_PREFIX_HEX  = self.config.get('TUNA_COUNTER_PREFIX','COUNTER').encode('utf-8').hex()
         self.TUNA_POLICY_HEX          = self.config['POLICY']
         self.TUNA_STATE_ASSETNAME_HEX = self.TUNA_STATE_PREFIX_HEX + self.config.get('SPEND_SCRIPT')
-        self.TUNA_ASSETNAME_HEX       = self.config.get('TUNA_ASSETNAME').encode('utf-8').hex() 
+        self.TUNA_ASSETNAME_HEX       = self.config.get('TUNA_ASSETNAME').encode('utf-8').hex()
 
         self.thread = Thread(target=self.loop, args=())
         self.thread.start()
@@ -118,9 +118,23 @@ class ChainWatcher:
     # loose pre-filter to reject most tx without more expensive tx deserialization
     def is_possible_tuna_tx(self, tx):
         try:
-            cbor_hex = tx['cbor']
-            return self.config.get('POLICY') in cbor_hex and self.config.get('MINT_SCRIPT') in cbor_hex and self.config.get('SPEND_SCRIPT') in cbor_hex
-        except:
+            #print('checking Tx _is_possible_tuna_tx')
+            cbor_hex = ''
+            
+            #if 'scripts' in tx:
+            #    if 'c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e' in tx['scripts']:
+            #        cbor_hex = tx['scripts']['c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e']['cbor']
+            #        print(self.config.get('POLICY') in cbor_hex and self.config.get('MINT_SCRIPT') in cbor_hex and self.config.get('SPEND_SCRIPT') in cbor_hex)
+            #        print('TunaLocated'))
+            #cbor_hex = tx['cbor']
+            #print(self.config.get('POLICY') in cbor_hex)
+            for n in tx['outputs']:
+                if n['address'] == 'addr1w838s2mvyx8wg0p0n9qwl30kyx2murnwxqnwx68am3fldlc5ecphg':
+                    if 'c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e' in tx['mint']:
+                        return True
+        except Exception as e:
+            print(e)
+            
             return False
 
     def try_state_update(self, tuna_tx):
@@ -140,12 +154,7 @@ class ChainWatcher:
                 self.log(f"<x1b[96m\U0001F41F {tuna_tx.out_block_number} {datetime.datetime.fromtimestamp(tuna_tx.out_posix_time * 0.001).isoformat()} ({time_behind} behind) <x1b[0m")
 
             try:
-                self.state['tuna_tx_cbor'] = tuna_tx.cbor
-            except:
-                self.state['tuna_tx_cbor'] = None
-
-            try:
-                self.index_state() 
+                self.index_state()
             except Exception as e:
                 print("error during store to db:", e)
                 print("-"*60)
@@ -167,17 +176,12 @@ class ChainWatcher:
         for c in tuna_state_columns:
             record['tuna_' + c] = self.state['tuna'].state.get(c)
 
-        record['cbor'] = bytes([])
-        try:
-            if self.state['tuna_tx_cbor'] is not None:
-                record['cbor'] = bytes.fromhex(self.state['tuna_tx_cbor'])
-        except Exception as e:
-            print(e)
-
         self.db.insert(record)
 
     def deserialize_tuna_tx(self, tx, debug=False):
         try:
+            #print('Deserialize Attempt')
+            '''
             cbor_hex = tx['cbor']
             pyctx = pycardano.Transaction.from_cbor(cbor_hex)
             if self.tx_debug or debug:
@@ -194,8 +198,10 @@ class ChainWatcher:
 
             if not tx_spends_tuna_counter:
                 return None
-
-            tuna_tx = TunaTx(pyctx, cbor=cbor_hex, config=self.config)
+            '''
+            cbor = ''
+            
+            tuna_tx = TunaTx(tx, cbor=cbor, config=self.config)
             if debug:
                 tuna_tx.inspect()
             return tuna_tx
@@ -224,7 +230,7 @@ class ChainWatcher:
                     self.log(f"height: {self.tip['height']}")
                     self.log(f"id:     {self.tip['id']}")
                     self.log("-"*80)
-            self.tip = self.synced_tip 
+            self.tip = self.synced_tip
 
     def loop(self):
 
@@ -277,11 +283,11 @@ class ChainWatcher:
                     }
 
             self.log(f"starting from block {self.state['tuna'].state['block']}")
-            
+
         else:
             self.log(f"syncing from genesis.")
             self.sync_from = {
-                    'slot': self.config.get("SYNC_SLOT"), 
+                    'slot': self.config.get("SYNC_SLOT"),
                     'id': self.config.get("SYNC_HASH"),
                     'height': self.config.get("SYNC_BLOCKNO"),
                     }
@@ -303,7 +309,7 @@ class ChainWatcher:
 
             direction = block_update.get('direction')
             if direction == 'forward':
-                block = block_update['block'] 
+                block = block_update['block']
 
                 if not self.synced:
                     if time.monotonic() > last_sync_update + 1:
@@ -333,18 +339,25 @@ class ChainWatcher:
                         for i,txo in enumerate(tx['outputs']):
                             if txo['address'] == self.wallet:
                                 self.state['wallet_utxos'].append({'transaction': {'id': tx['id']}, 'index': i, 'address': self.wallet, 'value': txo['value']})
-
+                            #print(txo['address'])
+                            #print(type(txo['address']))
+                            #if txo['address'] == 'addr1w838s2mvyx8wg0p0n9qwl30kyx2murnwxqnwx68am3fldlc5ecphg':
+                            #    print('TUNA?!')
+                                #print(tx)
+                                #sys.exit()
+                    #print('youareHere')
                     if self.is_possible_tuna_tx(tx):
                         tuna_tx = self.deserialize_tuna_tx(tx)
                         if tuna_tx:
                             try:
                                 success = self.try_state_update(tuna_tx)
+                                #print(f' Attempting try_state_update: {success}')
                                 if success:
                                     self.state['tx'] = tx['id']
                                 new_valid_tuna_state_found = new_valid_tuna_state_found or success
                             except Exception as e:
                                 self.log(f"state update failed: {e}")
-                            
+
                             for i,txo in enumerate(tx['outputs']):
                                 if txo['address'] == self.config['CONTRACT_ADDRESS']:
                                     self.state['contract_utxos'] = [{'transaction': {'id': tx['id']}, 'index': i, 'address': self.config['CONTRACT_ADDRESS'], 'value': txo['value']}]
@@ -363,7 +376,7 @@ class ChainWatcher:
                         self.events['block'].set()
 
                 self.update_sync_status(block)
-                
+
 
             elif direction == 'backward':
                 self.log("<x1b[30m<x1b[43m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ROLLBACK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<x1b[0m")
@@ -373,7 +386,7 @@ class ChainWatcher:
                     self.log(f"deleted {rows_deleted} rows")
 
                 t0 = time.monotonic()
-                # re-init 
+                # re-init
                 self.state['tuna'] = TunaState(self.trie_from_genesis())
 
                 # replay chain from DB to fill trie
@@ -387,7 +400,8 @@ class ChainWatcher:
                 # set state from DB
                 state = self.db.get_state()
                 if state is None or 'tuna_block' not in state:
-                    self.log(f"<x1b[31mdatabase error: invalid tuna state, if this error persists, check genesis file and network. re-syncing...<x1b[0m") 
+                    self.log(f"<x1b[31mdatabase error: invalid tuna state, if this error persists, check genesis file and network. re-syncing...<x1b[0m")
+
                     continue
 
                 self.state['tuna'].state.update({
@@ -414,4 +428,3 @@ class ChainWatcher:
                 self.events['dirty'].clear()
                 self.query_utxos()
                 self.log(f"<updated>")
-
