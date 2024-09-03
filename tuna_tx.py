@@ -3,6 +3,7 @@ import os
 
 import pycardano
 from cardano_helpers import *
+from pycardano import RawPlutusData
 
 '''
 class TargetState(pycardano.CBORSerializable):
@@ -63,7 +64,8 @@ class TunaTx:
 
         self.TUNA_STATE_PREFIX_HEX   = self.config.get('TUNA_STATE_PREFIX', 'TUNA').encode('utf-8').hex()
         self.TUNA_COUNTER_PREFIX_HEX = self.config.get('TUNA_COUNTER_PREFIX','COUNTER').encode('utf-8').hex()
-
+        self.cbor = 'fakeCBOR'
+        '''
         if tx is None:
             self.tx = pycardano.Transaction.from_cbor(cbor)
         else:
@@ -146,7 +148,6 @@ class TunaTx:
             raise Exception("state or counter not found.")
 
         out_datum_dict = self.tuna_out_datum.to_dict()
-
         self.out_block_number = out_datum_dict['fields'][0]['int']
         self.out_current_hash = out_datum_dict['fields'][1]['bytes']
         self.out_leading_zeros = out_datum_dict['fields'][2]['int']
@@ -154,8 +155,24 @@ class TunaTx:
         self.out_epoch_time = out_datum_dict['fields'][4]['int']
         self.out_posix_time = out_datum_dict['fields'][5]['int']
         self.out_merkle_root = out_datum_dict['fields'][6]['bytes']
-
-
+        '''
+        datum = ''
+        for n in tx['outputs']:
+            if n['address'] == 'addr1w838s2mvyx8wg0p0n9qwl30kyx2murnwxqnwx68am3fldlc5ecphg':   
+                if 'c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e' in list(n['value'].keys()):
+                    if '54554e41e2782b6c218ee43c2f9940efc5f62195be0e6e3026e368fddc53f6ff' in list(n['value']['c981fc98e761e3bb44ae35e7d97ae6227f684bcb6f50a636753da48e'].keys()):
+                        datum = n['datum']
+                        #print('DatumFound')
+        if datum != '':
+            rawPlutus = RawPlutusData.from_cbor(bytes.fromhex(datum))
+            self.out_block_number = rawPlutus.data.value[0] #int
+            self.out_current_hash = rawPlutus.data.value[1].hex() #current_hash.hex()
+            self.out_leading_zeros = rawPlutus.data.value[2]
+            self.out_target_number = rawPlutus.data.value[3]
+            self.out_epoch_time = rawPlutus.data.value[4]
+            self.out_posix_time = rawPlutus.data.value[5]
+            self.out_merkle_root = rawPlutus.data.value[6].hex()
+            self.out_cbor = 'fakeCbor'
     def save(self, p):
         try:
             os.makedirs(p)
